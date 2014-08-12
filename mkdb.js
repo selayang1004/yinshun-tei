@@ -7,10 +7,19 @@ var tei=require("ksana-document").tei;
 var do_div=function(text,tag,attributes,status) {
 	return null;
 }
+var do_title=function() {
+	var t=this.text.trim();
+	if (!t) return;
+	return [	{path:["head"],value:t},
+		      {path:["head_depth"],value:1},
+		      {path:["head_voff"],value:this.status.fileStartVpos}
+	];
+	//console.log(this.text.trim(),this.status.fileStartVpos);
+}
 var do_head=function(text,tag,attributes,status) {
 	if (!text) return;
-	return [	{path:["head"],value:text},
-		      {path:["head_depth"],value:status.tagStack.length},
+	return [	{path:["head"],value:text.trim()},
+		      {path:["head_depth"],value:status.tagStack.length+1},
 		      {path:["head_voff"],value:status.vpos}
 		    ]
 }
@@ -21,10 +30,11 @@ var captureTags={
 };
 
 var beforebodystart=function(s,status) {
+	tei(s,status.parsed,status.filename,config,status);
 }
 var afterbodyend=function(s,status) {
 	//status has parsed body text and raw body text, raw start text
-	//var apps=tei(status.starttext+s,status.parsed,status.filename,config);
+	
 	//console.log(apps)
 }
 var warning=function() {
@@ -32,9 +42,11 @@ var warning=function() {
 }
 
 var onFile=function(fn) {
-	process.stdout.write("indexing "+fn+"\033[0G");
+	if (window) console.log("indexing ",fn);
+	else process.stdout.write("indexing "+fn+"\033[0G");
 }
-var initialize=function() {
+var setupHandlers=function() {
+	this.addHandler(  "TEI/teiHeader/fileDesc/titleStmt/title", do_title);
 }
 var finalized=function(session) {
 	console.log("VPOS",session.vpos);
@@ -52,7 +64,7 @@ var config={
 	,bodystart: "<body>"
 	,bodyend : "</body>"
 	,reset:true
-	,initialize:initialize
+	,setupHandlers:setupHandlers
 	,finalized:finalized
 	,finalizeField:finalizeField
 	,warning:warning
