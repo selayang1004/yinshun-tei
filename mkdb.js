@@ -1,25 +1,43 @@
 /*
 TODO , normalize all traditional and variants to simplified Chinese
 */
-var yinshun="*.xml";
+var yinshun="y0[01]*.xml";
 var tei=require("ksana-document").tei;
 
 var do_div=function(text,tag,attributes,status) {
 	return null;
 }
+var toplevels={
+	0:"妙雲集上編",
+	8:"妙雲集中編",
+	15:"妙雲集下編",
+	26:"華雨集",
+	31:"雜阿含經論會編",
+	34:"原始佛教及部派",
+	38:"大乘及其他"
+}
 var do_title=function() {
+	var toplevel=toplevels[this.status.filenow];
+	var out=[];
+	if (toplevel) {
+		out=[{path:["head"],value:toplevel},
+			      {path:["head_depth"],value:1},
+			      {path:["head_voff"],value:this.status.fileStartVpos}
+		];		
+	}
 	var t=this.text.trim();
-	if (!t) return;
-	return [	{path:["head"],value:t},
-		      {path:["head_depth"],value:1},
-		      {path:["head_voff"],value:this.status.fileStartVpos}
-	];
+	if (!t) return;		
+	out=out.concat([	{path:["head"],value:t},
+			      {path:["head_depth"],value:2},
+			      {path:["head_voff"],value:this.status.fileStartVpos}
+	]);
+	return out;
 	//console.log(this.text.trim(),this.status.fileStartVpos);
 }
 var do_head=function(text,tag,attributes,status) {
 	if (!text) return;
 	return [	{path:["head"],value:text.trim()},
-		      {path:["head_depth"],value:status.tagStack.length+1},
+		      {path:["head_depth"],value:status.tagStack.length+2},
 		      {path:["head_voff"],value:status.vpos}
 		    ]
 }
@@ -42,7 +60,7 @@ var warning=function() {
 }
 
 var onFile=function(fn) {
-	if (window) console.log("indexing ",fn);
+	if (typeof window!=="undefined") console.log("indexing ",fn);
 	else process.stdout.write("indexing "+fn+"\033[0G");
 }
 var setupHandlers=function() {
@@ -57,7 +75,9 @@ var finalizeField=function(fields) {
 }
 var config={
 	name:"yinshun"
-	,config:"simple1"
+	,meta:{
+		config:"simple1"	
+	}
 	,glob:yinshun
 	,pageSeparator:"pb.n"
 	,format:"TEIP5"
