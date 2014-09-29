@@ -1,7 +1,7 @@
 /*
 TODO , normalize all traditional and variants to simplified Chinese
 */
-var yinshun="y0[01]*.xml";
+var yinshun="y*.xml";
 var tei=require("ksana-document").tei;
 
 var do_div=function(text,tag,attributes,status) {
