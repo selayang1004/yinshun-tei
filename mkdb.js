@@ -64,7 +64,7 @@ var onFile=function(fn) {
 	else process.stdout.write("indexing "+fn+"\033[0G");
 }
 var setupHandlers=function() {
-	this.addHandler(  "TEI/teiHeader/fileDesc/titleStmt/title", do_title);
+	this.addHandler(  "teiHeader/fileDesc/titleStmt/title", do_title);
 }
 var finalized=function(session) {
 	console.log("VPOS",session.vpos);
